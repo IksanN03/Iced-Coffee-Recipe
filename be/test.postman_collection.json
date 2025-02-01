@@ -1,0 +1,742 @@
+{
+	"info": {
+		"_postman_id": "0a9272a5-c67c-4aa3-aa74-6387e41a7bcb",
+		"name": "test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "36790963",
+		"_collection_link": "https://fotoin.postman.co/workspace/appskep~c862760c-538d-4502-a871-1eb50c2abd6e/collection/36790963-0a9272a5-c67c-4aa3-aa74-6387e41a7bcb?action=share&source=collection_link&creator=36790963"
+	},
+	"item": [
+		{
+			"name": "/auth/submit-email",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\":\"iksannursalim123456@gmail.com\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/auth/submit-email",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"auth",
+						"submit-email"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "success",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\":\"iksannursalim123456@gmail.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/submit-email",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"submit-email"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 31 Jan 2025 07:25:17 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "66"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": {\n        \"success\": \"Magic link sent\"\n    },\n    \"data\": null,\n    \"error\": null\n}"
+				}
+			]
+		},
+		{
+			"name": "/auth/magic-link",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/auth/magic-link?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Imlrc2FubnVyc2FsaW0xMjM0NTZAZ21haWwuY29tIiwiZXhwIjoxNzM4MzExMzIzfQ.CH1Kpntdm5rZHHenH51WjG0fLuDSPNpUrP2zqgzNSYM",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"auth",
+						"magic-link"
+					],
+					"query": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Imlrc2FubnVyc2FsaW0xMjM0NTZAZ21haWwuY29tIiwiZXhwIjoxNzM4MzExMzIzfQ.CH1Kpntdm5rZHHenH51WjG0fLuDSPNpUrP2zqgzNSYM"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "success",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/auth/magic-link?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Imlrc2FubnVyc2FsaW0xMjM0NTZAZ21haWwuY29tIiwiZXhwIjoxNzM4MzA4NTI1fQ.qQCMEE2d_wL3ADJAXzGwdhEF5DWDy5r8eNSeGI24R9Y",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"magic-link"
+							],
+							"query": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Imlrc2FubnVyc2FsaW0xMjM0NTZAZ21haWwuY29tIiwiZXhwIjoxNzM4MzA4NTI1fQ.qQCMEE2d_wL3ADJAXzGwdhEF5DWDy5r8eNSeGI24R9Y"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 31 Jan 2025 07:28:29 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "250"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": {\n        \"success\": \"Authentication successful\"\n    },\n    \"data\": {\n        \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Imlrc2FubnVyc2FsaW0xMjM0NTZAZ21haWwuY29tIiwiZXhwIjoxNzM4Mzk0OTA5fQ.cJVl3gT_V8ZGpbkbfkISK2nlb76zFrLOEuJqdHmo0R0\"\n    },\n    \"error\": null\n}"
+				}
+			]
+		},
+		{
+			"name": "inventory",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"item_name\":\"Mineral Water\",\r\n    \"quantity\":1,\r\n    \"uom\":\"Liter\",\r\n    \"price_per_qty\":5000\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/inventory",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"inventory"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "success",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"item_name\":\"Aren Sugar\",\r\n    \"quantity\":1,\r\n    \"uom\":\"kg\",\r\n    \"price_per_qty\":60000\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/inventory",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"inventory"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 31 Jan 2025 08:18:56 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "286"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": {\n        \"success\": \"Inventory item added successfully\"\n    },\n    \"data\": {\n        \"inventory\": {\n            \"ID\": 1,\n            \"CreatedAt\": \"2025-01-31T15:18:56.6719656+07:00\",\n            \"UpdatedAt\": \"2025-01-31T15:18:56.6719656+07:00\",\n            \"DeletedAt\": null,\n            \"item_name\": \"Aren Sugar\",\n            \"quantity\": 1,\n            \"uom\": \"kg\",\n            \"price_per_qty\": 60000\n        }\n    },\n    \"error\": null\n}"
+				}
+			]
+		},
+		{
+			"name": "inventory",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"item_name\":\"Aren Sugar\",\r\n    \"quantity\":1,\r\n    \"uom\":\"kg\",\r\n    \"price_per_qty\":60000\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/inventory/1",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"inventory",
+						"1"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "success",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"item_name\":\"Aren Sugar\",\r\n    \"quantity\":2,\r\n    \"uom\":\"kg\",\r\n    \"price_per_qty\":60000\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/inventory/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"inventory",
+								"1"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 31 Jan 2025 08:20:29 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "287"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": {\n        \"success\": \"Inventory item updated successfully\"\n    },\n    \"data\": {\n        \"inventory\": {\n            \"ID\": 1,\n            \"CreatedAt\": \"2025-01-31T15:18:56.671965+07:00\",\n            \"UpdatedAt\": \"2025-01-31T15:20:29.7862942+07:00\",\n            \"DeletedAt\": null,\n            \"item_name\": \"Aren Sugar\",\n            \"quantity\": 2,\n            \"uom\": \"kg\",\n            \"price_per_qty\": 60000\n        }\n    },\n    \"error\": null\n}"
+				}
+			]
+		},
+		{
+			"name": "inventory",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/inventory?search=Aren Sugar",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"inventory"
+					],
+					"query": [
+						{
+							"key": "search",
+							"value": "Aren Sugar"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "success",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/inventory?search=Aren Sugar",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"inventory"
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": "Aren Sugar"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 31 Jan 2025 08:24:05 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "337"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": {\n        \"success\": \"Inventory retrieved successfully\"\n    },\n    \"data\": {\n        \"inventory\": [\n            {\n                \"ID\": 2,\n                \"CreatedAt\": \"2025-01-31T15:22:29.683402+07:00\",\n                \"UpdatedAt\": \"2025-01-31T15:22:29.683402+07:00\",\n                \"DeletedAt\": null,\n                \"item_name\": \"Aren Sugar\",\n                \"quantity\": 1,\n                \"uom\": \"kg\",\n                \"price_per_qty\": 60000\n            }\n        ],\n        \"limit\": 10,\n        \"page\": 1,\n        \"total_items\": 1,\n        \"total_pages\": 1\n    },\n    \"error\": null\n}"
+				}
+			]
+		},
+		{
+			"name": "inventory",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/inventory/1",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"inventory",
+						"1"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "success",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/inventory/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"inventory",
+								"1"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 31 Jan 2025 08:22:17 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "86"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": {\n        \"success\": \"Inventory item deleted successfully\"\n    },\n    \"data\": null,\n    \"error\": null\n}"
+				}
+			]
+		},
+		{
+			"name": "recipe",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"number_of_cups\": 1,\r\n    \"ingredients\": {\r\n        \"Aren Sugar\": {\"amount\": 15, \"unit\": \"g\"},\r\n        \"Milk\": {\"amount\": 150, \"unit\": \"ml\"},\r\n        \"Ice Cube\": {\"amount\": 20, \"unit\": \"g\"},\r\n        \"Plastic Cup\": {\"amount\": 1, \"unit\": \"pcs\"},\r\n        \"Coffee Bean\": {\"amount\": 20, \"unit\": \"g\"},\r\n        \"Mineral Water\": {\"amount\": 50, \"unit\": \"ml\"}\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/recipe",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"recipe"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "success",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"number_of_cups\": 1,\r\n    \"ingredients\": {\r\n        \"Aren Sugar\": {\"amount\": 15, \"unit\": \"g\"},\r\n        \"Milk\": {\"amount\": 150, \"unit\": \"ml\"},\r\n        \"Ice Cube\": {\"amount\": 20, \"unit\": \"g\"},\r\n        \"Plastic Cup\": {\"amount\": 1, \"unit\": \"pcs\"},\r\n        \"Coffee Bean\": {\"amount\": 20, \"unit\": \"g\"},\r\n        \"Mineral Water\": {\"amount\": 50, \"unit\": \"ml\"}\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/recipe",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"recipe"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 31 Jan 2025 08:34:35 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "129"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": {\n        \"success\": \"Recipe added successfully\"\n    },\n    \"data\": {\n        \"cogs\": 13250,\n        \"number_of_cups\": 1,\n        \"sku\": \"IC-20250131-001\"\n    },\n    \"error\": null\n}"
+				}
+			]
+		},
+		{
+			"name": "recipe",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"number_of_cups\": 2,\r\n    \"ingredients\": {\r\n        \"Aren Sugar\": {\"amount\": 15, \"unit\": \"g\"},\r\n        \"Milk\": {\"amount\": 150, \"unit\": \"ml\"},\r\n        \"Ice Cube\": {\"amount\": 20, \"unit\": \"g\"},\r\n        \"Plastic Cup\": {\"amount\": 1, \"unit\": \"pcs\"},\r\n        \"Coffee Bean\": {\"amount\": 20, \"unit\": \"g\"},\r\n        \"Mineral Water\": {\"amount\": 50, \"unit\": \"ml\"}\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/recipe/1",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"recipe",
+						"1"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "success",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"number_of_cups\": 2,\r\n    \"ingredients\": {\r\n        \"Aren Sugar\": {\"amount\": 15, \"unit\": \"g\"},\r\n        \"Milk\": {\"amount\": 150, \"unit\": \"ml\"},\r\n        \"Ice Cube\": {\"amount\": 20, \"unit\": \"g\"},\r\n        \"Plastic Cup\": {\"amount\": 1, \"unit\": \"pcs\"},\r\n        \"Coffee Bean\": {\"amount\": 20, \"unit\": \"g\"},\r\n        \"Mineral Water\": {\"amount\": 50, \"unit\": \"ml\"}\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/recipe/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"recipe",
+								"1"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 31 Jan 2025 18:14:45 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "131"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": {\n        \"success\": \"Recipe updated successfully\"\n    },\n    \"data\": {\n        \"cogs\": 26500,\n        \"number_of_cups\": 2,\n        \"sku\": \"IC-20250131-001\"\n    },\n    \"error\": null\n}"
+				}
+			]
+		},
+		{
+			"name": "recipe",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/recipe?search=IC-20250131-001",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"recipe"
+					],
+					"query": [
+						{
+							"key": "search",
+							"value": "IC-20250131-001"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "success",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/recipe?search=IC-20250131-001",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"recipe"
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": "IC-20250131-001"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 31 Jan 2025 18:13:56 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "563"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": {\n        \"success\": \"Recipes retrieved successfully\"\n    },\n    \"data\": {\n        \"limit\": 10,\n        \"page\": 1,\n        \"recipes\": [\n            {\n                \"ID\": 1,\n                \"CreatedAt\": \"2025-01-31T15:34:35.507194+07:00\",\n                \"UpdatedAt\": \"2025-01-31T15:34:35.507194+07:00\",\n                \"DeletedAt\": null,\n                \"sku\": \"IC-20250131-001\",\n                \"number_of_cups\": 1,\n                \"ingredients\": {\n                    \"Milk\": {\n                        \"unit\": \"ml\",\n                        \"amount\": 150\n                    },\n                    \"Ice Cube\": {\n                        \"unit\": \"g\",\n                        \"amount\": 20\n                    },\n                    \"Aren Sugar\": {\n                        \"unit\": \"g\",\n                        \"amount\": 15\n                    },\n                    \"Coffee Bean\": {\n                        \"unit\": \"g\",\n                        \"amount\": 20\n                    },\n                    \"Plastic Cup\": {\n                        \"unit\": \"pcs\",\n                        \"amount\": 1\n                    },\n                    \"Mineral Water\": {\n                        \"unit\": \"ml\",\n                        \"amount\": 50\n                    }\n                },\n                \"cogs\": 13250\n            }\n        ],\n        \"total_items\": 1,\n        \"total_pages\": 1\n    },\n    \"error\": null\n}"
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8087",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Imlrc2FubnVyc2FsaW0xMjM0NTZAZ21haWwuY29tIiwiZXhwIjoxNzM4Mzk3Njg5fQ.8-GPemPaLsf_rmh-fpV86RrkXeV3Qky_DreiuWvQL_Y",
+			"type": "string"
+		}
+	]
+}
