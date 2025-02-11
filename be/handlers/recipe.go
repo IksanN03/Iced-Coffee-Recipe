@@ -63,23 +63,36 @@ func AddRecipe(c *gin.Context) {
 
 		// Convert to base unit and calculate cost
 		var baseAmount float64
+		var itemCost float64
+
 		switch strings.ToLower(measurement.Unit) {
 		case "g":
-			baseAmount = measurement.Amount / 1000 // to kg
+			inventoryBaseGrams := inventoryItem.Quantity * 1000 // Convert kg to grams
+			pricePerGram := inventoryItem.PricePerQty / float64(inventoryBaseGrams)
+			itemCost = measurement.Amount * pricePerGram
 		case "kg":
-			baseAmount = measurement.Amount // already in kg
-		case "ml":
-			baseAmount = measurement.Amount / 1000 // to l
-		case "liter":
-			baseAmount = measurement.Amount // already in l
-		case "pcs":
 			baseAmount = measurement.Amount
+			itemCost = baseAmount * inventoryItem.PricePerQty
+		case "ml":
+			inventoryBaseMl := inventoryItem.Quantity * 1000 // Convert liter to ml
+			pricePerMl := inventoryItem.PricePerQty / float64(inventoryBaseMl)
+			itemCost = measurement.Amount * pricePerMl
+		case "liter":
+			baseAmount = measurement.Amount
+			itemCost = baseAmount * inventoryItem.PricePerQty
+		case "pcs":
+			if inventoryItem.Quantity > 0 {
+				// Calculate price per piece
+				pricePerPiece := inventoryItem.PricePerQty / float64(inventoryItem.Quantity)
+				itemCost = measurement.Amount * pricePerPiece
+			}
 		default:
 			helpers.NewAPIResponse(c, nil, fmt.Errorf("invalid unit"), "validation", 0, "Invalid unit")
 			return
 		}
 
-		totalCOGS += baseAmount * inventoryItem.PricePerQty * float64(input.NumberOfCups)
+		totalCOGS += itemCost * float64(input.NumberOfCups)
+
 	}
 
 	recipe.COGS = totalCOGS
@@ -195,23 +208,36 @@ func UpdateRecipe(c *gin.Context) {
 		}
 
 		var baseAmount float64
+		var itemCost float64
+
 		switch strings.ToLower(measurement.Unit) {
 		case "g":
-			baseAmount = measurement.Amount / 1000
+			inventoryBaseGrams := inventoryItem.Quantity * 1000 // Convert kg to grams
+			pricePerGram := inventoryItem.PricePerQty / float64(inventoryBaseGrams)
+			itemCost = measurement.Amount * pricePerGram
 		case "kg":
 			baseAmount = measurement.Amount
+			itemCost = baseAmount * inventoryItem.PricePerQty
 		case "ml":
-			baseAmount = measurement.Amount / 1000
+			inventoryBaseMl := inventoryItem.Quantity * 1000 // Convert liter to ml
+			pricePerMl := inventoryItem.PricePerQty / float64(inventoryBaseMl)
+			itemCost = measurement.Amount * pricePerMl
 		case "liter":
 			baseAmount = measurement.Amount
+			itemCost = baseAmount * inventoryItem.PricePerQty
 		case "pcs":
-			baseAmount = measurement.Amount
+			if inventoryItem.Quantity > 0 {
+				// Calculate price per piece
+				pricePerPiece := inventoryItem.PricePerQty / float64(inventoryItem.Quantity)
+				itemCost = measurement.Amount * pricePerPiece
+			}
 		default:
 			helpers.NewAPIResponse(c, nil, fmt.Errorf("invalid unit"), "validation", 0, "Invalid unit")
 			return
 		}
 
-		totalCOGS += baseAmount * inventoryItem.PricePerQty * float64(input.NumberOfCups)
+		totalCOGS += itemCost * float64(input.NumberOfCups)
+
 	}
 
 	recipe.NumberOfCups = input.NumberOfCups
