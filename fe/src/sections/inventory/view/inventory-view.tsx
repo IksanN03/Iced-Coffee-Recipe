@@ -11,6 +11,7 @@ import { getToken } from 'src/utils/auth';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
+import { fCurrency, fNumber } from 'src/utils/format-number';
 
 export interface Inventory {
   ID: number;
@@ -293,9 +294,9 @@ export function InventoryView() {
                   <TableRow key={item.ID}>
                     <TableCell>{index+1}</TableCell>
                     <TableCell>{item.item_name}</TableCell>
-                    <TableCell>{item.quantity}</TableCell>
+                    <TableCell>{fNumber(item.quantity)}</TableCell>
                     <TableCell>{item.uom}</TableCell>
-                    <TableCell>{item.price_per_qty}</TableCell>
+                    <TableCell>{ fCurrency(item.price_per_qty)}</TableCell>
                     <TableCell>{new Date(item.CreatedAt).toLocaleString()}</TableCell>
                     <TableCell>{new Date(item.UpdatedAt).toLocaleString()}</TableCell>
                     <TableCell align="right">
@@ -366,16 +367,27 @@ export function InventoryView() {
           </FormControl>
 
           <FormControl fullWidth sx={{ mb: 2 }}>
-            <TextField
-              label="Quantity"
-              type="number"
-              value={formData.quantity}
-              onChange={(e) => setFormData({ ...formData, quantity: parseFloat(e.target.value) })}
-              error={!!formErrors.quantity}
-              helperText={formErrors.quantity}
-              required
-            />
-          </FormControl>
+          <TextField
+            label="Quantity"
+            type="text"
+            value={formData.quantity ? fNumber(formData.quantity) : ''}
+            onKeyPress={(e) => {
+              if (!/[0-9]/.test(e.key)) {
+                e.preventDefault();
+              }
+            }}
+            onChange={(e) => {
+              const rawValue = e.target.value.replace(/\D/g, '');
+              setFormData({ 
+                ...formData, 
+                quantity: rawValue ? Number(rawValue) : 0 
+              });
+            }}
+            error={!!formErrors.quantity}
+            helperText={formErrors.quantity}
+            required
+          />
+        </FormControl>
 
           <FormControl fullWidth sx={{ mb: 2 }}>
             <InputLabel>UOM</InputLabel>
@@ -399,16 +411,27 @@ export function InventoryView() {
           </FormControl>
 
           <FormControl fullWidth sx={{ mb: 3 }}>
-            <TextField
-              label="Price Per Quantity"
-              type="number"
-              value={formData.price_per_qty}
-              onChange={(e) => setFormData({ ...formData, price_per_qty: parseFloat(e.target.value) })}
-              error={!!formErrors.price_per_qty}
-              helperText={formErrors.price_per_qty}
-              required
-            />
-          </FormControl>
+          <TextField
+            label="Price Per Quantity"
+            type="text"
+            value={formData.price_per_qty ? fCurrency(formData.price_per_qty) : ''}
+            onKeyPress={(e) => {
+              if (!/[0-9]/.test(e.key)) {
+                e.preventDefault();
+              }
+            }}
+            onChange={(e) => {
+              const rawValue = e.target.value.replace(/\D/g, '');
+              setFormData({ 
+                ...formData, 
+                price_per_qty: rawValue ? Number(rawValue) : 0 
+              });
+            }}
+            error={!!formErrors.price_per_qty}
+            helperText={formErrors.price_per_qty}
+            required
+          />
+        </FormControl>
 
           <LoadingButton
             fullWidth

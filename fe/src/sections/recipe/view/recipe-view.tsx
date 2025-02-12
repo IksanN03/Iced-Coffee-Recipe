@@ -12,6 +12,7 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { Inventory } from 'src/sections/inventory/view';
+import { fCurrency, fNumber } from 'src/utils/format-number';
 
 interface Measurement {
   amount: number | null;
@@ -36,17 +37,38 @@ interface FormData {
 
 const initialFormData: FormData = {
   number_of_cups: null,
-  ingredients: {
-    'Aren Sugar': { amount: null, unit: 'g' },
-    'Milk': { amount: null, unit: 'ml' },
-    'Ice Cube': { amount: null, unit: 'g' },
-    'Plastic Cup': { amount: null, unit: 'pcs' },
-    'Coffee Bean': { amount: null, unit: 'g' },
-    'Mineral Water': { amount: null, unit: 'ml' }
-  }
+  ingredients: {}
 };
 
+const IngredientSelector = ({ 
+  inventoryItems, 
+  onAdd, 
+  existingIngredients 
+}: { 
+  inventoryItems: Inventory[], 
+  onAdd: (name: string) => void,
+  existingIngredients: string[]
+}) => {
+  const availableItems = inventoryItems.filter(
+    item => !existingIngredients.includes(item.item_name)
+  );
 
+  return (
+    <FormControl fullWidth sx={{ mb: 2 }}>
+      <InputLabel>Select Ingredient</InputLabel>
+      <Select
+        value=""
+        onChange={(e) => onAdd(e.target.value)}
+      >
+        {availableItems.map((item) => (
+          <MenuItem key={item.item_name} value={item.item_name}>
+            {item.item_name}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
+  );
+};
 
 export function RecipeView() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
@@ -58,10 +80,15 @@ export function RecipeView() {
   const [openModal, setOpenModal] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [formData, setFormData] = useState<FormData>(initialFormData);
+  const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
+  const [showSelector, setShowSelector] = useState(false);
+  const [inventoryItems, setInventoryItems] = useState<Inventory[]>([]);
+
   const [formErrors, setFormErrors] = useState({
     number_of_cups: '',
     ingredients: {} as Record<string, string>
   });
+
   const getAvailableUnits = (currentUnit: string) => {
     const unitGroups = {
       weight: ['g', 'kg'],
@@ -77,6 +104,7 @@ export function RecipeView() {
     }
     return unitGroups.piece;
   };
+
   const [toast, setToast] = useState<{
     open: boolean;
     type: 'success' | 'error' | 'warning';
@@ -91,16 +119,30 @@ export function RecipeView() {
     setToast({ ...toast, open: false });
   };
 
+  const handleAddIngredient = (name: string) => {
+    setSelectedIngredients([...selectedIngredients, name]);
+    const newIngredients = { ...formData.ingredients };
+    newIngredients[name] = { 
+      amount: null, 
+      unit: inventoryItems.find(i => i.item_name === name)?.uom || 'g' 
+    };
+    setFormData({ ...formData, ingredients: newIngredients });
+    setShowSelector(false);
+  };
+
+  const handleRemoveIngredient = (name: string) => {
+    setSelectedIngredients(selectedIngredients.filter(i => i !== name));
+    const newIngredients = { ...formData.ingredients };
+    delete newIngredients[name];
+    setFormData({ ...formData, ingredients: newIngredients });
+  };
+
   const handleCloseModal = () => {
-    setFormData({
-      number_of_cups: 1,
-      ingredients: inventoryItems.reduce((acc: Record<string, Measurement>, item: Inventory) => ({
-        ...acc,
-        [item.item_name]: { amount: 0, unit: item.uom }
-      }), {})
-    });
+    setFormData(initialFormData);
+    setSelectedIngredients([]);
     setSelectedRecipe(null);
     setOpenModal(false);
+    setShowSelector(false);
   };
 
   const fetchRecipes = useCallback(async () => {
@@ -137,51 +179,38 @@ export function RecipeView() {
     }
   }, [page, limit, search]);
 
-  const [inventoryItems, setInventoryItems] = useState<Inventory[]>([]);
-
-const fetchInventory = useCallback(async () => {
-  try {
-    const response = await fetch(
-      `${import.meta.env.VITE_BASE_URL_BACKEND}/inventory`,
-      {
-        headers: {
-          Authorization: `Bearer ${getToken()}`
+  const fetchInventory = useCallback(async () => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BASE_URL_BACKEND}/inventory`,
+        {
+          headers: {
+            Authorization: `Bearer ${getToken()}`
+          }
         }
+      );
+      const data = await response.json();
+      
+      if (response.ok) {
+        setInventoryItems(data.data.inventory);
       }
-    );
-    const data = await response.json();
-    
-    if (response.ok) {
-      setInventoryItems(data.data.inventory);
-      // Create initial ingredients from inventory
-      const defaultIngredients = data.data.inventory.reduce((acc: Record<string, Measurement>, item: Inventory) => ({
-        ...acc,
-        [item.item_name]: { amount: null, unit: item.uom }
-      }), {});
-      setFormData(prev => ({ ...prev, ingredients: defaultIngredients }));
-    
+    } catch (error) {
+      setToast({
+        open: true,
+        message: 'Failed to fetch inventory items',
+        type: 'error'
+      });
     }
-  } catch (error) {
-    setToast({
-      open: true,
-      message: 'Failed to fetch inventory items',
-      type: 'error'
-    });
-  }
-}, []);
+  }, []);
 
-
-useEffect(() => {
-  fetchInventory();
-}, [fetchInventory]);
-
+  useEffect(() => {
+    fetchInventory();
+  }, [fetchInventory]);
 
   useEffect(() => {
     fetchRecipes();
   }, [fetchRecipes]);
 
-  
-  // Add validation function
   const validateForm = () => {
     let isValid = true;
     const errors = {
@@ -193,8 +222,16 @@ useEffect(() => {
       errors.number_of_cups = 'Number of cups is required';
       isValid = false;
     }
-  
 
+    if (selectedIngredients.length === 0) {
+      setToast({
+        open: true,
+        message: 'At least one ingredient is required',
+        type: 'error'
+      });
+      isValid = false;
+    }
+  
     setFormErrors(errors);
     return isValid;
   };
@@ -226,7 +263,7 @@ useEffect(() => {
           message: data.message.success,
           type: 'success'
         });
-        setOpenModal(false);
+        handleCloseModal();
         fetchRecipes();
       } else {
         setToast({
@@ -307,20 +344,20 @@ useEffect(() => {
               <TableBody>
                 {recipes.map((recipe, index) => (
                   <TableRow key={recipe.ID}>
-                    <TableCell  sx={{ verticalAlign: 'top' }}>{index+1}</TableCell>
-                    <TableCell  sx={{ verticalAlign: 'top' }}>{recipe.sku}</TableCell>
-                    <TableCell  sx={{ verticalAlign: 'top' }}>{recipe.number_of_cups}</TableCell>
-                    <TableCell  sx={{ verticalAlign: 'top' }}>
-                    {Object.entries(recipe.ingredients).map(([name, measurement]) => (
-                      <Box key={name}>
-                        {name}: {measurement.amount} {measurement.unit}
-                      </Box>
-                    ))}
-                  </TableCell>
-                    <TableCell  sx={{ verticalAlign: 'top' }}>{recipe.cogs}</TableCell>
-                    <TableCell  sx={{ verticalAlign: 'top' }}>{new Date(recipe.CreatedAt).toLocaleString()}</TableCell>
-                    <TableCell  sx={{ verticalAlign: 'top' }}>{new Date(recipe.UpdatedAt).toLocaleString()}</TableCell>
-                    <TableCell align="right"  sx={{ verticalAlign: 'top' }}>
+                    <TableCell>{index + 1}</TableCell>
+                    <TableCell>{recipe.sku}</TableCell>
+                    <TableCell>{fNumber(recipe.number_of_cups)}</TableCell>
+                    <TableCell>
+                      {Object.entries(recipe.ingredients).map(([name, measurement]) => (
+                        <Box key={name}>
+                          {name}: {fNumber(measurement.amount)} {measurement.unit}
+                        </Box>
+                      ))}
+                    </TableCell>
+                    <TableCell>{fCurrency(recipe.cogs)}</TableCell>
+                    <TableCell>{new Date(recipe.CreatedAt).toLocaleString()}</TableCell>
+                    <TableCell>{new Date(recipe.UpdatedAt).toLocaleString()}</TableCell>
+                    <TableCell align="right">
                       <IconButton
                         onClick={() => {
                           setSelectedRecipe(recipe);
@@ -328,6 +365,7 @@ useEffect(() => {
                             number_of_cups: recipe.number_of_cups,
                             ingredients: recipe.ingredients
                           });
+                          setSelectedIngredients(Object.keys(recipe.ingredients));
                           setOpenModal(true);
                         }}
                       >
@@ -376,65 +414,102 @@ useEffect(() => {
           </Typography>
           
           <FormControl fullWidth sx={{ mb: 3 }}>
-            <TextField
-              label="Number of Cups"
-              type="number"
-              value={formData.number_of_cups}
-              onChange={(e) => setFormData({ 
-                ...formData, 
-                number_of_cups:parseInt(e.target.value, 10)
+                  <TextField
+          label="Number of Cups"
+          type="text"
+          value={formData.number_of_cups ? fNumber(formData.number_of_cups) : ''}
+          onKeyPress={(e) => {
+            if (!/[0-9]/.test(e.key)) {
+              e.preventDefault();
+            }
+          }}
+          onChange={(e) => {
+            const rawValue = e.target.value.replace(/\D/g, '');
+            setFormData({
+              ...formData,
+              number_of_cups: rawValue ? Number(rawValue) : null
+            });
+          }}
+          error={!!formErrors.number_of_cups}
+          helperText={formErrors.number_of_cups}
+          required
+        />
 
-              })}
-              error={!!formErrors.number_of_cups}
-              helperText={formErrors.number_of_cups}
-              required
-            />
           </FormControl>
 
-          {Object.entries(formData.ingredients).map(([name, measurement]) => (
-            <Box key={name} sx={{ mb: 2 }}>
-              <Typography variant="subtitle2" mb={1}>
-                {name}
-              </Typography>
-              <Box display="flex" gap={2}>
-                <TextField
-                  label="Amount"
-                  type="number"
-                  value={measurement.amount}
+          <Box>
+            <Button
+              variant="outlined"
+              startIcon={<Iconify icon="eva:plus-fill" />}
+              sx={{ mb: 2 }}
+              onClick={() => setShowSelector(prev => !prev)}
+            >
+              Add Ingredient
+            </Button>
+
+            {showSelector && (
+              <IngredientSelector 
+                inventoryItems={inventoryItems}
+                onAdd={handleAddIngredient}
+                existingIngredients={selectedIngredients}
+              />
+            )}
+
+            {selectedIngredients.map((name) => (
+              <Box key={name} sx={{ mb: 2, position: 'relative' }}>
+                <Box display="flex" alignItems="center" gap={2}>
+                  <Typography variant="subtitle2" mb={1}>
+                    {name}
+                  </Typography>
+                  <IconButton 
+                    size="small" 
+                    onClick={() => handleRemoveIngredient(name)}
+                    sx={{ position: 'absolute', right: 0, top: 0 }}
+                  >
+                    <Iconify icon="eva:close-fill" />
+                  </IconButton>
+                </Box>
+                <Box display="flex" gap={2}>
+                  <TextField
+                    label="Amount"
+                    type="text" // Changed from number to text
+                  value={fNumber(formData.ingredients[name]?.amount || '')}
                   onChange={(e) => {
                     const newIngredients = { ...formData.ingredients };
+                    const numericValue = e.target.value.replace(/[^0-9]/g, '');
                     newIngredients[name] = {
-                      ...measurement,
-                      amount: parseFloat(e.target.value)
+                      ...newIngredients[name],
+                      amount: parseFloat(numericValue)
                     };
                     setFormData({ ...formData, ingredients: newIngredients });
                   }}
-                  fullWidth
-                />
-                <FormControl fullWidth>
-                  <InputLabel>Unit</InputLabel>
-                  <Select
-                    value={measurement.unit.toLowerCase()}
-                    onChange={(e) => {
-                      const newIngredients = { ...formData.ingredients };
-                      newIngredients[name] = {
-                        ...measurement,
-                        unit: e.target.value.toUpperCase()
-                      };
-                      setFormData({ ...formData, ingredients: newIngredients });
-                    }}
-                    required
-                  >
-                     {getAvailableUnits(measurement.unit).map((unit) => (
-                      <MenuItem key={unit} value={unit}>
-                        {unit}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                    fullWidth
+                  />
+                  <FormControl fullWidth>
+                    <InputLabel>Unit</InputLabel>
+                    <Select
+                      value={formData.ingredients[name]?.unit.toLowerCase() || ''}
+                      onChange={(e) => {
+                        const newIngredients = { ...formData.ingredients };
+                        newIngredients[name] = {
+                          ...newIngredients[name],
+                          unit: e.target.value.toUpperCase()
+                        };
+                        setFormData({ ...formData, ingredients: newIngredients });
+                      }}
+                      required
+                    >
+                      {getAvailableUnits(formData.ingredients[name]?.unit || '').map((unit) => (
+                        <MenuItem key={unit} value={unit}>
+                          {unit}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Box>
               </Box>
-            </Box>
-          ))}
+            ))}
+          </Box>
 
           <LoadingButton
             fullWidth

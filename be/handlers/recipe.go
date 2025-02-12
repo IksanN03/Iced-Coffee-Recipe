@@ -12,6 +12,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/datatypes"
+	"gorm.io/gorm"
 )
 
 func AddRecipe(c *gin.Context) {
@@ -34,69 +35,14 @@ func AddRecipe(c *gin.Context) {
 	}
 
 	// Calculate COGS
-	var inventoryItems []models.Inventory
-	if err := database.DB.Find(&inventoryItems).Error; err != nil {
-		helpers.NewAPIResponse(c, nil, err, "db", 0, "Failed to fetch inventory")
-		return
-	}
-
-	var totalCOGS float64
 	ingredients := make(map[string]models.Measurement)
 	json.Unmarshal(ingredientsJSON, &ingredients)
 
-	for itemName, measurement := range ingredients {
-		// Find matching inventory item
-		var inventoryItem models.Inventory
-		found := false
-		for _, item := range inventoryItems {
-			if item.ItemName == itemName {
-				inventoryItem = item
-				found = true
-				break
-			}
-		}
-
-		if !found {
-			helpers.NewAPIResponse(c, nil, fmt.Errorf("item not found"), "validation", 0, fmt.Sprintf("Item %s not found in inventory", itemName))
-			return
-		}
-
-		// Convert to base unit and calculate cost
-		var baseAmount float64
-		var itemCost float64
-
-		switch strings.ToLower(measurement.Unit) {
-		case "g":
-			inventoryBaseGrams := inventoryItem.Quantity * 1000 // Convert kg to grams
-			pricePerGram := inventoryItem.PricePerQty / float64(inventoryBaseGrams)
-			itemCost = measurement.Amount * pricePerGram
-		case "kg":
-			baseAmount = measurement.Amount
-			itemCost = baseAmount * inventoryItem.PricePerQty
-		case "ml":
-			inventoryBaseMl := inventoryItem.Quantity * 1000 // Convert liter to ml
-			pricePerMl := inventoryItem.PricePerQty / float64(inventoryBaseMl)
-			itemCost = measurement.Amount * pricePerMl
-		case "liter":
-			baseAmount = measurement.Amount
-			itemCost = baseAmount * inventoryItem.PricePerQty
-		case "pcs":
-			if inventoryItem.Quantity > 0 {
-				// Calculate price per piece
-				pricePerPiece := inventoryItem.PricePerQty / float64(inventoryItem.Quantity)
-				itemCost = measurement.Amount * pricePerPiece
-			}
-		default:
-			helpers.NewAPIResponse(c, nil, fmt.Errorf("invalid unit"), "validation", 0, "Invalid unit")
-			return
-		}
-
-		totalCOGS += itemCost * float64(input.NumberOfCups)
-
+	recipe.COGS, err = calculateCOGSWithSubquery(ingredients, input.NumberOfCups, database.DB)
+	if err != nil {
+		helpers.NewAPIResponse(c, nil, err, "db", 0, "Failed to calculate COGS")
+		return
 	}
-
-	recipe.COGS = totalCOGS
-
 	// Generate SKU
 	currentTime := time.Now()
 	var lastRecipe models.Recipe
@@ -147,7 +93,7 @@ func GetRecipe(c *gin.Context) {
 	}
 
 	query.Count(&totalItems)
-	query.Offset(offset).Limit(limit).Find(&recipes)
+	query.Offset(offset).Limit(limit).Order("id desc").Find(&recipes)
 
 	helpers.NewAPIResponse(c, gin.H{
 		"page":        page,
@@ -181,68 +127,15 @@ func UpdateRecipe(c *gin.Context) {
 	}
 
 	// Recalculate COGS
-	var inventoryItems []models.Inventory
-	if err := database.DB.Find(&inventoryItems).Error; err != nil {
-		helpers.NewAPIResponse(c, nil, err, "db", 0, "Failed to fetch inventory")
-		return
-	}
-
-	var totalCOGS float64
 	ingredients := make(map[string]models.Measurement)
 	json.Unmarshal(ingredientsJSON, &ingredients)
-
-	for itemName, measurement := range ingredients {
-		var inventoryItem models.Inventory
-		found := false
-		for _, item := range inventoryItems {
-			if item.ItemName == itemName {
-				inventoryItem = item
-				found = true
-				break
-			}
-		}
-
-		if !found {
-			helpers.NewAPIResponse(c, nil, fmt.Errorf("item not found"), "validation", 0, fmt.Sprintf("Item %s not found in inventory", itemName))
-			return
-		}
-
-		var baseAmount float64
-		var itemCost float64
-
-		switch strings.ToLower(measurement.Unit) {
-		case "g":
-			inventoryBaseGrams := inventoryItem.Quantity * 1000 // Convert kg to grams
-			pricePerGram := inventoryItem.PricePerQty / float64(inventoryBaseGrams)
-			itemCost = measurement.Amount * pricePerGram
-		case "kg":
-			baseAmount = measurement.Amount
-			itemCost = baseAmount * inventoryItem.PricePerQty
-		case "ml":
-			inventoryBaseMl := inventoryItem.Quantity * 1000 // Convert liter to ml
-			pricePerMl := inventoryItem.PricePerQty / float64(inventoryBaseMl)
-			itemCost = measurement.Amount * pricePerMl
-		case "liter":
-			baseAmount = measurement.Amount
-			itemCost = baseAmount * inventoryItem.PricePerQty
-		case "pcs":
-			if inventoryItem.Quantity > 0 {
-				// Calculate price per piece
-				pricePerPiece := inventoryItem.PricePerQty / float64(inventoryItem.Quantity)
-				itemCost = measurement.Amount * pricePerPiece
-			}
-		default:
-			helpers.NewAPIResponse(c, nil, fmt.Errorf("invalid unit"), "validation", 0, "Invalid unit")
-			return
-		}
-
-		totalCOGS += itemCost * float64(input.NumberOfCups)
-
-	}
-
 	recipe.NumberOfCups = input.NumberOfCups
 	recipe.Ingredients = datatypes.JSON(ingredientsJSON)
-	recipe.COGS = totalCOGS
+	recipe.COGS, err = calculateCOGSWithSubquery(ingredients, input.NumberOfCups, database.DB)
+	if err != nil {
+		helpers.NewAPIResponse(c, nil, err, "db", 0, "Failed to calculate COGS")
+		return
+	}
 
 	if err := database.DB.Save(&recipe).Error; err != nil {
 		helpers.NewAPIResponse(c, nil, err, "db", 0, "Failed to update recipe")
@@ -254,4 +147,38 @@ func UpdateRecipe(c *gin.Context) {
 		"cogs":           recipe.COGS,
 		"number_of_cups": recipe.NumberOfCups,
 	}, nil, "", 0, "Recipe updated successfully")
+}
+
+func calculateCOGSWithSubquery(ingredients map[string]models.Measurement, numberOfCups int, db *gorm.DB) (float64, error) {
+	var totalCOGS float64
+
+	// Process each ingredient with individual optimized query
+	for itemName, measurement := range ingredients {
+		var itemCost float64
+		unit := strings.ToLower(measurement.Unit)
+
+		query := db.Model(&models.Inventory{}).
+			Select("CASE ? "+
+				"WHEN 'g' THEN (? * price_per_qty) / (quantity * 1000) "+
+				"WHEN 'kg' THEN ? * price_per_qty "+
+				"WHEN 'ml' THEN (? * price_per_qty) / (quantity * 1000) "+
+				"WHEN 'liter' THEN ? * price_per_qty "+
+				"WHEN 'pcs' THEN CASE WHEN quantity > 0 THEN ? * (price_per_qty / quantity) ELSE 0 END "+
+				"ELSE 0 END as cost",
+				unit, measurement.Amount, measurement.Amount,
+				measurement.Amount, measurement.Amount, measurement.Amount).
+			Where("item_name = ?", itemName)
+
+		if err := query.Scan(&itemCost).Error; err != nil {
+			return 0, fmt.Errorf("item %s not found or invalid", itemName)
+		}
+
+		if itemCost == 0 {
+			return 0, fmt.Errorf("invalid unit or calculation for %s", itemName)
+		}
+
+		totalCOGS += itemCost * float64(numberOfCups)
+	}
+
+	return totalCOGS, nil
 }
